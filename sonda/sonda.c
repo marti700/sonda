@@ -25,21 +25,35 @@ void trigger_pulse()
 }
 
 
-uint32_t measure_pulse_duration() {
+uint32_t measure_pulse_duration(uint32_t timeout_us) {
 
-    uint32_t start, end;
+    // sometimes gpio_get(ECHO_PIN) == (1|0) will miss
+    // when the echo pin goes high/low the elapsed_time
+    // variable is here to break out of the loop after the
+    // specified timeout_us passes
+    uint32_t pulse_start, pulse_end, elapsed_time;
 
-    // Wait for the pulse to start
+
+    // Wait for the pulse to start, with timeout
+    pulse_start = time_us_32();
     while (gpio_get(ECHO_PIN) == 0) {
-        start = time_us_32() ;
+        elapsed_time = time_us_32() - pulse_start;
+        if (elapsed_time > timeout_us) {
+            return 0; // Timeout
+        }
     }
 
-    // Wait for the pulse to end
+    // Wait for the pulse to end, with timeout
     while (gpio_get(ECHO_PIN) == 1) {
-        end = time_us_32();
+        elapsed_time = time_us_32() - pulse_start;
+        if (elapsed_time > timeout_us) {
+            return 0; // Timeout
+        }
+
+        pulse_end = time_us_32();
     }
 
-    return end - start;
+    return pulse_end - pulse_start;
 }
 
 float measure_distance_cm(uint32_t pulse_duration)
@@ -71,6 +85,13 @@ int main()
 
     while (true) {
         trigger_pulse();
+        // max time the echo pin will be on in theory is 23400 us
+        // because the JSN sensor can measure up to 400 cm so:
+        //t = (400cm) / (34300 cm/s) = 0.01166180 seconds
+        // but you have to multiply that by two because the sonic burst
+        // goes and travels back when it colide with an object so
+        // the total time is around 0.023323 seconds which is equal to
+        // approximately 23300 us
         uint32_t pulse_duration = measure_pulse_duration(23500);
         float dist = measure_distance_cm(pulse_duration);
 
@@ -78,5 +99,6 @@ int main()
         uart_puts(UART_ID, str);
 
         sleep_ms(1000);
+
     }
 }
