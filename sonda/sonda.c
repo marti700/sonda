@@ -24,7 +24,8 @@ int main()
     gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 
 
-    // For more examples of UART use see
+    // For more examples of UART use see https://github.com/raspberrypi/pico-examples/tree/master/uart
+
     int c = 5;
     char str[20];
     while (true) {
