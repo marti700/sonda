@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UART Data</title>
+    <!-- Include necessary JavaScript libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.js"></script>
     <style>
         canvas {
             width: 100%;
@@ -17,13 +20,24 @@
 </head>
 <body>
     <h1>Real-Time UART Data</h1>
+    <!-- Dropdown to select the filter type -->
     <label for="filter">Filter data:</label>
     <select id="filter" onchange="applyFilter()">
         <option value="today">Today</option>
         <option value="week">Last Week</option>
         <option value="month">Last Month</option>
         <option value="year">Last Year</option>
+        <option value="custom">Custom</option>
     </select>
+    <!-- Date pickers for the custom filter -->
+    <div id="customFilter" style="display: none;">
+        <label for="start_date">Start Date:</label>
+        <input type="text" id="start_date" class="datepicker">
+        <label for="end_date">End Date:</label>
+        <input type="text" id="end_date" class="datepicker">
+        <button onclick="applyCustomFilter()">Apply</button>
+    </div>
+    <!-- Chart to display the data -->
     <canvas id="dataChart"></canvas>
     <script>
         var socket = io();
@@ -63,16 +77,35 @@
             }
         });
 
+        // Listen for new data from the server and update the chart
         socket.on('new_data', function(data) {
             chart.data.labels.push(data.timestamp);
             chart.data.datasets[0].data.push(data.value);
             chart.update();
         });
 
+        // Apply the selected filter
         function applyFilter() {
             var filter = document.getElementById('filter').value;
-            window.location.href = '/?filter=' + filter;
+            if (filter === 'custom') {
+                document.getElementById('customFilter').style.display = 'block';
+            } else {
+                document.getElementById('customFilter').style.display = 'none';
+                window.location.href = '/?filter=' + filter;
+            }
         }
+
+        // Apply the custom date range filter
+        function applyCustomFilter() {
+            var startDate = document.getElementById('start_date').value;
+            var endDate = document.getElementById('end_date').value;
+            window.location.href = '/?filter=custom&start_date=' + startDate + '&end_date=' + endDate;
+        }
+
+        // Initialize the date pickers
+        flatpickr(".datepicker", {
+            dateFormat: "Y-m-d"
+        });
     </script>
 </body>
 </html>

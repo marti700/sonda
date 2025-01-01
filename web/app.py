@@ -39,7 +39,6 @@ def on_message(client, userdata, msg):
             measurement = Measurements(timestamp=timestamp, value=value)
             db.session.add(measurement)
             db.session.commit()
-            # print(f"Stored: {measurement}")
             socketio.emit('new_data', {'timestamp': timestamp_str, 'value': value_str})
     except ValueError as e:
         print(f"Invalid message received: {message}, error: {e}")
@@ -53,19 +52,32 @@ def mqtt_loop():
 
 @app.route('/')
 def index():
+    # Get the filter type from the query parameters, default to 'today'
     filter_type = request.args.get('filter', 'today')
+    # Get the start and end date strings from the query parameters
+    start_date_str = request.args.get('start_date')
+    end_date_str = request.args.get('end_date')
 
-    if filter_type == 'year':
+    # Check if the custom filter is used and the start and end dates are provided
+    if filter_type == 'custom' and start_date_str and end_date_str:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d') + timedelta(days=1)
+    # Filter by year, month, or week based on the filter type
+    elif filter_type == 'year':
         start_date = datetime.now() - timedelta(days=365)
     elif filter_type == 'month':
         start_date = datetime.now() - timedelta(days=30)
     elif filter_type == 'week':
         start_date = datetime.now() - timedelta(days=7)
+    # Default to showing data collected today
     else:
         start_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-
-    measurements = Measurements.query.filter(Measurements.timestamp >= start_date).order_by(Measurements.timestamp.desc()).all()
-
+        end_date = datetime.now() + timedelta(days=1)
+    
+    # Query the database for measurements within the date range
+    measurements = Measurements.query.filter(Measurements.timestamp >= start_date, Measurements.timestamp < end_date).order_by(Measurements.timestamp.desc()).all()
+    
+    # Render the HTML template with the measurements
     return render_template('index.html', measurements=measurements)
 
 if __name__ == '__main__':
