@@ -76,10 +76,13 @@ def index():
     # Filter by year, month, or week based on the filter type
     elif filter_type == 'year':
         start_date = datetime.now() - timedelta(days=365)
+        end_date = datetime.now()
     elif filter_type == 'month':
         start_date = datetime.now() - timedelta(days=30)
+        end_date = datetime.now()
     elif filter_type == 'week':
         start_date = datetime.now() - timedelta(days=7)
+        end_date = datetime.now()
     # Default to showing data collected today
     else:
         start_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
