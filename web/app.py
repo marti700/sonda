@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
-from datetime import datetime
+from datetime import datetime, timedelta
 import paho.mqtt.client as mqtt
 import threading
 
@@ -53,7 +53,19 @@ def mqtt_loop():
 
 @app.route('/')
 def index():
-    measurements = Measurements.query.order_by(Measurements.timestamp.desc()).limit(10).all()
+    filter_type = request.args.get('filter', 'today')
+
+    if filter_type == 'year':
+        start_date = datetime.now() - timedelta(days=365)
+    elif filter_type == 'month':
+        start_date = datetime.now() - timedelta(days=30)
+    elif filter_type == 'week':
+        start_date = datetime.now() - timedelta(days=7)
+    else:
+        start_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+    measurements = Measurements.query.filter(Measurements.timestamp >= start_date).order_by(Measurements.timestamp.desc()).all()
+
     return render_template('index.html', measurements=measurements)
 
 if __name__ == '__main__':

@@ -17,11 +17,17 @@
 </head>
 <body>
     <h1>Real-Time UART Data</h1>
+    <label for="filter">Filter data:</label>
+    <select id="filter" onchange="applyFilter()">
+        <option value="today">Today</option>
+        <option value="week">Last Week</option>
+        <option value="month">Last Month</option>
+        <option value="year">Last Year</option>
+    </select>
     <canvas id="dataChart"></canvas>
     <script>
         var socket = io();
         var ctx = document.getElementById('dataChart').getContext('2d');
-
         var chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -62,6 +68,11 @@
             chart.data.datasets[0].data.push(data.value);
             chart.update();
         });
+
+        function applyFilter() {
+            var filter = document.getElementById('filter').value;
+            window.location.href = '/?filter=' + filter;
+        }
     </script>
 </body>
 </html>
