@@ -42,6 +42,7 @@
     <script>
         var socket = io();
         var ctx = document.getElementById('dataChart').getContext('2d');
+        // Initialize the chart with Chart.js
         var chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -102,7 +103,7 @@
             window.location.href = '/?filter=custom&start_date=' + startDate + '&end_date=' + endDate;
         }
 
-        // Initialize the date pickers
+        // Initialize the date pickers using Flatpickr
         flatpickr(".datepicker", {
             dateFormat: "Y-m-d"
         });
