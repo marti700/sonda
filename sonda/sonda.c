@@ -21,8 +21,6 @@
 void uart_init_and_configure();
 void uart_send_float(float value);
 float measure_distance_cm();
-float calculate_median(float *data, int n);
-float calculate_mean(float *data, int n);
 
 int main()
 {
@@ -37,21 +35,8 @@ int main()
 
     while (true)
     {
-        float measurements[NUM_MEASUREMENTS];
-
-        for (int i = 0; i < NUM_MEASUREMENTS; i++)
-        {
-            measurements[i] = measure_distance_cm();
-            sleep_ms(200); // Wait 200 seconds between measurements, so... 10 measurements each 2 second
-        }
-
-        float median_distance = calculate_median(measurements, NUM_MEASUREMENTS);
-        uart_puts(UART_ID, "MEDIAN: ======================>\n");
-        uart_send_float(median_distance);
-        float mean_distance = calculate_mean(measurements, NUM_MEASUREMENTS);
-        uart_puts(UART_ID, "MEAN: ======================>\n");
-        uart_send_float(mean_distance);
-        sleep_ms(3000); // Wait 3 seconds before next set of measurements
+        uart_send_float(measure_distance_cm());
+        sleep_ms(1000);
     }
 }
 
@@ -125,47 +110,4 @@ float measure_distance_cm()
     // approximately 23300 us
     uint32_t pulse_duration = measure_pulse_duration(23500);
     return (pulse_duration * speed_of_sound) / 2 / 1000000.0f;
-}
-
-// Function to calculate the median of an array
-float calculate_median(float *data, int n)
-{
-    // Sort the array in ascending order
-    for (int i = 0; i < n - 1; i++)
-    {
-        for (int j = 0; j < n - i - 1; j++)
-        {
-            if (data[j] > data[j + 1])
-            {
-                // Swap data[j] and data[j+1]
-                float temp = data[j];
-                data[j] = data[j + 1];
-                data[j + 1] = temp;
-            }
-        }
-    }
-
-    if (n % 2 == 0)
-    {
-        // If even number of elements, return average of middle two
-        return (data[n / 2 - 1] + data[n / 2]) / 2.0;
-    }
-    else
-    {
-        // If odd number of elements, return middle element
-        return data[n / 2];
-    }
-}
-
-// Function to calculate the mean of an array
-float calculate_mean(float *data, int n)
-{
-    int sum = 0;
-    // Sort the array in ascending order
-    for (int i = 0; i < n - 1; i++)
-    {
-        sum += data[i];
-    }
-
-    return sum / n;
 }
