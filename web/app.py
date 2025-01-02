@@ -92,7 +92,9 @@ def index():
     measurements = Measurements.query.filter(Measurements.timestamp >= start_date, Measurements.timestamp < end_date).order_by(Measurements.timestamp.desc()).all()
     
     # Render the HTML template with the measurements
-    return render_template('index.html', measurements=measurements)
+    # return render_template('index.html', measurements=measurements)
+    # Render the HTML template with the measurements and filter variables
+    return render_template('index.html', measurements=measurements, filter_type=filter_type, start_date=start_date_str, end_date=end_date_str)
 
 if __name__ == '__main__':
     with app.app_context():

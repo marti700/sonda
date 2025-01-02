@@ -23,18 +23,18 @@
     <!-- Dropdown to select the filter type -->
     <label for="filter">Filter data:</label>
     <select id="filter" onchange="applyFilter()">
-        <option value="today">Today</option>
-        <option value="week">Last Week</option>
-        <option value="month">Last Month</option>
-        <option value="year">Last Year</option>
-        <option value="custom">Custom</option>
+        <option value="today" {% if filter_type == 'today' %}selected{% endif %}>Today</option>
+        <option value="week" {% if filter_type == 'week' %}selected{% endif %}>Last Week</option>
+        <option value="month" {% if filter_type == 'month' %}selected{% endif %}>Last Month</option>
+        <option value="year" {% if filter_type == 'year' %}selected{% endif %}>Last Year</option>
+        <option value="custom" {% if filter_type == 'custom' %}selected{% endif %}>Custom</option>
     </select>
     <!-- Date pickers for the custom filter -->
-    <div id="customFilter" style="display: none;">
+    <div id="customFilter" style="display: {% if filter_type == 'custom' %}block{% else %}none{% endif %};">
         <label for="start_date">Start Date:</label>
-        <input type="text" id="start_date" class="datepicker">
+        <input type="text" id="start_date" class="datepicker" value="{{ start_date }}">
         <label for="end_date">End Date:</label>
-        <input type="text" id="end_date" class="datepicker">
+        <input type="text" id="end_date" class="datepicker" value="{{ end_date }}">
         <button onclick="applyCustomFilter()">Apply</button>
     </div>
     <!-- Chart to display the data -->
