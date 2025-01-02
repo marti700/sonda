@@ -30,6 +30,7 @@
         <option value="custom" {% if filter_type == 'custom' %}selected{% endif %}>Custom</option>
     </select>
     <!-- Date pickers for the custom filter -->
+    <!-- these will just show up if the custom filter is selected -->
     <div id="customFilter" style="display: {% if filter_type == 'custom' %}block{% else %}none{% endif %};">
         <label for="start_date">Start Date:</label>
         <input type="text" id="start_date" class="datepicker" value="{{ start_date }}">
@@ -79,6 +80,8 @@
         });
 
         // Listen for new data from the server and update the chart
+        // this 'new_data' is an identifier (people like to call this event)
+        // given in the server when sending the data through the socket tunel
         socket.on('new_data', function(data) {
             chart.data.labels.push(data.timestamp);
             chart.data.datasets[0].data.push(data.value);
@@ -86,20 +89,24 @@
         });
 
         // Apply the selected filter
+        // this function is called when the user changes filters
         function applyFilter() {
             var filter = document.getElementById('filter').value;
             if (filter === 'custom') {
                 document.getElementById('customFilter').style.display = 'block';
             } else {
                 document.getElementById('customFilter').style.display = 'none';
+                // reloads the page, this causes the server to apply the user selected filters
                 window.location.href = '/?filter=' + filter;
             }
         }
 
         // Apply the custom date range filter
+        // this function is called when the user select the custom filter
         function applyCustomFilter() {
             var startDate = document.getElementById('start_date').value;
             var endDate = document.getElementById('end_date').value;
+            // reloads the page, this causes the server to apply the user selected filters
             window.location.href = '/?filter=custom&start_date=' + startDate + '&end_date=' + endDate;
         }
 
@@ -110,4 +117,3 @@
     </script>
 </body>
 </html>
-
