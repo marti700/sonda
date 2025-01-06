@@ -1,4 +1,3 @@
-version: '3'
 services:
   mqtt:
     image: eclipse-mosquitto
@@ -10,10 +9,12 @@ services:
       - /home/talcantara/mosquitto/data:/mosquitto/data
       - /home/talcantara/mosquitto/log:/mosquitto/log
   uart-lora-service:
-    build: ./uart_service/dockerfile
+    build: ./uart_service
     container_name: sonda-lora-service
     depends_on:
       - mqtt
     environment:
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
+    devices:
+      - "/dev/ttyAMA0:/dev/ttyAMA0"

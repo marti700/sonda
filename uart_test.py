@@ -1,7 +1,7 @@
 import serial
 
 # Open the serial port at the desired baud rate
-ser = serial.Serial('/dev/ttyAMA10', 9600, timeout=1)
+ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
 
 # Function to read data from UART
 def read_uart():
