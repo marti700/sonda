@@ -1,3 +1,4 @@
+import os
 import serial
 import paho.mqtt.client as mqtt
 from datetime import datetime
@@ -20,17 +21,24 @@ from datetime import datetime
 # the timeout parameter is set to 1 second and this means that if the serial port
 # doesn't receive any data within 1 second of attempting to read, the read operation
 # will be considered unsuccessful and will return whatever data has been received up to that point
-ser = serial.Serial('/dev/ttyS0', 9600, timeout=1)
+ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
 
 # MQTT setup
 mqtt_client = mqtt.Client() # get and instance of the mqtt client
+
+# Get the MQTT broker address from the environment variable
+# In our case these variables are created by docker compose
+# as specified in the docker compose file
+mqtt_broker = os.getenv('MQTT_BROKER', 'localhost')
+mqtt_port = int(os.getenv('MQTT_PORT', 1833))
+
 # set the conection details of the mqtt instance
 # In this case the 10.0.0.38 represents the hsot IP
 # the  1883 represents the port on which the mqtt broker is listening (we are using mosquitto)
 # the 60 is the "keep-alive" interval this means that the client have to send a ping to keep the
 # conection with the broker alive if the client fails to do this (whithin a minute in this case)
 # the broker will drop the conection with the client
-mqtt_client.connect("10.0.0.38", 1883, 60)
+mqtt_client.connect(mqtt_broker, mqtt_port, 60)
 
 def read_uart():
     while True: # an infinite loop

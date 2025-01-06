@@ -1,0 +1,19 @@
+version: '3'
+services:
+  mqtt:
+    image: eclipse-mosquitto
+    container_name: mosquitto-broker
+    ports:
+      - "1883:1883"
+    volumes:
+      - /home/talcantara/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - /home/talcantara/mosquitto/data:/mosquitto/data
+      - /home/talcantara/mosquitto/log:/mosquitto/log
+  uart-lora-service:
+    build: ./uart_service/dockerfile
+    container_name: sonda-lora-service
+    depends_on:
+      - mqtt
+    environment:
+      - MQTT_BROKER=mqtt
+      - MQTT_PORT=1883
