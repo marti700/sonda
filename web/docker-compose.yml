@@ -18,3 +18,13 @@ services:
       - MQTT_PORT=1883
     devices:
       - "/dev/ttyAMA0:/dev/ttyAMA0"
+  sonda-web:
+    build: ./webapp
+    container_name: sonda-web
+    depends_on:
+      - mqtt
+    environment:
+      - MQTT_BROKER=mqtt
+      - MQTT_PORT=1883
+    ports:
+      - "5000:5000"

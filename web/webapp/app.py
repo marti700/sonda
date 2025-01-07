@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
@@ -80,6 +81,12 @@ def on_message(client, userdata, msg):
     except ValueError as e:
         print(f"Invalid message received: {message}, error: {e}")
 
+# Get the MQTT broker address from the environment variable
+# In our case these variables are created by docker compose
+# as specified in the docker compose file
+mqtt_broker = os.getenv('MQTT_BROKER', 'localhost')
+mqtt_port = int(os.getenv('MQTT_PORT', 1833))
+
 # Assign the MQTT callbacks
 # no parentheses are used because the onconect property of the mqtt_client
 # expects a function as a value if parentheses are used the function will be called
@@ -87,7 +94,7 @@ def on_message(client, userdata, msg):
 mqtt_client.on_connect = on_connect
 mqtt_client.on_message = on_message
 # Connect to the MQTT broker
-mqtt_client.connect("10.0.0.38", 1883, 60)
+mqtt_client.connect(mqtt_broker, mqtt_port, 60)
 
 # Function to run the MQTT loop in a separate thread
 # so that borker operations not interfere with the normal
@@ -143,7 +150,9 @@ if __name__ == '__main__':
         # in this case the Measurements class.
         # It then dynamically creates the corresponding tables in the database
         # based on the model definitions (columns, data types, relationships, etc.).
+        print("Creating all database tables...")
         db.create_all() # this creates a sonda.db file in the /instance directory
+        print("Database tables created.")
 
     # Start the MQTT loop in a separate thread
     mqtt_thread = threading.Thread(target=mqtt_loop)
@@ -166,5 +175,5 @@ if __name__ == '__main__':
 
     # also remember the version of SocketIO being used comes from flask-socketIO package
     # make sense that is has a function to initialize flask and socketIo at the same time
-    socketio.run(app, debug=True, host='0.0.0.0')
+    socketio.run(app, debug=True, host='0.0.0.0', allow_unsafe_werkzeug=True)
 
