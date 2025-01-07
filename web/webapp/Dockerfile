@@ -4,11 +4,8 @@ FROM python:3.13-slim
 # Set the working directory in the container
 WORKDIR /app
 
-# Install slqlite
-RUN apt-get update && apt-get install -y sqlite3
-
 # Install the dependencies
-RUN pip install --no-cache-dir flask flask-sqlalchemy flask-socketio paho-mqtt
+RUN pip install --no-cache-dir flask flask-sqlalchemy flask-socketio paho-mqtt gunicorn eventlet
 
 # Copy the application code into the container
 COPY . .
@@ -28,11 +25,5 @@ USER appuser
 # Expose the port on which the app runs
 EXPOSE 5000
 
-# Define environment variables
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_ENV=development
-ENV FLASK_DEBUG=1
-
 # Run the application
-CMD ["python", "app.py"]
+CMD ["gunicorn", "-w", "4", "-k", "eventlet", "-b", "0.0.0.0:5000", "app:app"]

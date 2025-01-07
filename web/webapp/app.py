@@ -139,41 +139,21 @@ def index():
     # value of the first dropdown option.
     return render_template('index.html', measurements=measurements, filter_type=filter_type, start_date=start_date_str, end_date=end_date_str)
 
-if __name__ == '__main__':
-    # This line establishes an application context.
-    # In Flask, an application context provides access to application-wide objects and configurations.
-    # This is essential because database operations (like creating tables)
-    # rely on the application context to function correctly.
-    with app.app_context():
-        # db is the SQLAlchemy instance, which was configured to interact with the database.
-        # create_all() instructs SQLAlchemy to examine all the defined database models
-        # in this case the Measurements class.
-        # It then dynamically creates the corresponding tables in the database
-        # based on the model definitions (columns, data types, relationships, etc.).
-        print("Creating all database tables...")
-        db.create_all() # this creates a sonda.db file in the /instance directory
-        print("Database tables created.")
+# This line establishes an application context.
+# In Flask, an application context provides access to application-wide objects and configurations.
+# This is essential because database operations (like creating tables)
+# rely on the application context to function correctly.
+with app.app_context():
+    # db is the SQLAlchemy instance, which was configured to interact with the database.
+    # create_all() instructs SQLAlchemy to examine all the defined database models
+    # in this case the Measurements class.
+    # It then dynamically creates the corresponding tables in the database
+    # based on the model definitions (columns, data types, relationships, etc.).
+    print("Creating all database tables...")
+    db.create_all() # this creates a sonda.db file in the /instance directory
+    print("Database tables created.")
 
-    # Start the MQTT loop in a separate thread
-    mqtt_thread = threading.Thread(target=mqtt_loop)
-    mqtt_thread.daemon = True
-    mqtt_thread.start()
-
-    # Run the Flask application with Socket.IO
-    # Why socketio.run instead of app.run?
-    # The `socketio.run` function is specifically designed to run Flask applications
-    # that are integrated with Socket.IO. It internally handles the initialization
-    # and management of the Socket.IO server, which is crucial for enabling real-time communication.
-
-    # app.run is for Standard Flask Apps. The standard app.run function is used
-    # for regular Flask applications that don't involve real-time communication. It
-    # focuses on starting the Flask development server to serve the web application.
-
-    # Using socketio.run ensures that both the Flask development server and the
-    # Socket.IO server are started correctly, providing the necessary environment for
-    # real-time updates in your web application.
-
-    # also remember the version of SocketIO being used comes from flask-socketIO package
-    # make sense that is has a function to initialize flask and socketIo at the same time
-    socketio.run(app, debug=True, host='0.0.0.0', allow_unsafe_werkzeug=True)
-
+# Start the MQTT loop in a separate thread
+mqtt_thread = threading.Thread(target=mqtt_loop)
+mqtt_thread.daemon = True
+mqtt_thread.start()
