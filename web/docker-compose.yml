@@ -17,6 +17,7 @@ services:
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
     devices:
+     # remember to run sudo chmod 666 /dev/ttyAMA0 on the host system
       - "/dev/ttyAMA0:/dev/ttyAMA0"
   sonda-web:
     build: ./webapp
